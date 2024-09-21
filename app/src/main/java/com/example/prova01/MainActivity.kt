@@ -1,5 +1,6 @@
 package com.example.prova01
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -8,6 +9,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -19,6 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 
 class MainActivity : ComponentActivity() {
@@ -47,8 +50,8 @@ fun TelaCadastro() {
     ) {
         TextField(value = nome, onValueChange = { nome = it }, label = { Text("Nome do Produto") })
         TextField(value = categoria, onValueChange = { categoria = it }, label = { Text("Categoria do Produto") })
-        TextField(value = preco, onValueChange = { preco = it }, label = { Text("Preço do Produto") })
-        TextField(value = qtdEstoque, onValueChange = { qtdEstoque = it }, label = { Text("Quantidade do Produto em Estoque") })
+        TextField(value = preco, onValueChange = { preco = it }, label = { Text("Preço do Produto") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
+        TextField(value = qtdEstoque, onValueChange = { qtdEstoque = it }, label = { Text("Quantidade em Estoque") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
 
         Button(onClick = {
             if (nome.isBlank()) {
@@ -61,7 +64,7 @@ fun TelaCadastro() {
                 return@Button
             }
 
-            var precoFloat: Float
+            val precoFloat: Float
             if (preco.isBlank()) {
                 Toast.makeText(context, "Todos os campos são obrigatórios", Toast.LENGTH_SHORT).show()
                 return@Button
@@ -69,7 +72,7 @@ fun TelaCadastro() {
                 precoFloat = preco.toFloat()
             }
 
-            var qtdEstoqueInt: Int
+            val qtdEstoqueInt: Int
             if (qtdEstoque.isBlank()) {
                 Toast.makeText(context, "Todos os campos são obrigatórios", Toast.LENGTH_SHORT).show()
                 return@Button
@@ -79,8 +82,20 @@ fun TelaCadastro() {
 
             val produto = Produto(nome, categoria, precoFloat, qtdEstoqueInt)
             Produto.produtos.add(produto)
+
+            nome = ""
+            categoria = ""
+            preco = ""
+            qtdEstoque = ""
         }) {
             Text("Cadastrar Produto!")
+        }
+
+        Button(onClick = {
+            val intent = Intent(context, ListaProdutosActivity::class.java)
+            context.startActivity(intent)
+        }) {
+            Text("Lista de Produtos!")
         }
 
     }
