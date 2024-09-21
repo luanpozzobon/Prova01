@@ -42,7 +42,7 @@ class ListaProdutosActivity : ComponentActivity() {
 fun Tela() {
     val navController = rememberNavController()
 
-    Column (
+    Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -54,6 +54,12 @@ fun Tela() {
                 val produto = Gson().fromJson(produtoJSON, Produto::class.java)
                 Detalhes(navController, produto)
             }
+            composable("estatisticas/{valorTotal}/{quantidadeTotal}") { backStackEntry ->
+                val valorTotal = backStackEntry.arguments?.getString("valorTotal")?.toDouble()
+                val quantidadeTotal =
+                    backStackEntry.arguments?.getString("quantidadeTotal")?.toInt()
+                Estatisticas(navController, valorTotal, quantidadeTotal)
+            }
         }
     }
 }
@@ -62,19 +68,19 @@ fun Tela() {
 fun ListaProdutos(navController: NavController) {
     val context = LocalContext.current
 
-    Column (
+    Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        LazyColumn (
+        LazyColumn(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            items(Produto.produtos) { produto ->
+            items(Estoque.listaProdutos) { produto ->
                 Row {
-                    Text("Produto: ${produto.nome} (${produto.qtdEstoque} unidades!)");
+                    Text("Produto: ${produto.nome} (${produto.quantidade} unidades!)");
                     Button(onClick = {
                         val produtoJSON = Gson().toJson(produto)
                         navController.navigate("detalhes/$produtoJSON")
@@ -83,6 +89,15 @@ fun ListaProdutos(navController: NavController) {
                     }
                 }
             }
+        }
+
+        Button(onClick = {
+            val valorTotal = Estoque.calcularValorTotalEstoque()
+            val quantidadeTotal = Estoque.calcularQuantidadeTotalProdutos()
+
+            navController.navigate("estatisticas/$valorTotal/$quantidadeTotal")
+        }) {
+            Text("Ver Estatísticas")
         }
 
         Button(onClick = {
@@ -96,7 +111,7 @@ fun ListaProdutos(navController: NavController) {
 
 @Composable
 fun Detalhes(navController: NavController, produto: Produto) {
-    Column (
+    Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -113,9 +128,27 @@ fun Detalhes(navController: NavController, produto: Produto) {
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        Text("Quantidade: ${produto.qtdEstoque}")
+        Text("Quantidade: ${produto.quantidade}")
 
         Spacer(modifier = Modifier.height(10.dp))
+
+        Button(onClick = {
+            navController.popBackStack()
+        }) {
+            Text("Voltar!")
+        }
+    }
+}
+
+@Composable
+fun Estatisticas(navController: NavController, valorTotal: Double?, quantidadeTotal: Int?) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = "Valor Total do Estoque: $valorTotal")
+        Text(text = "Quantidade Total de Produtos: $quantidadeTotal")
 
         Button(onClick = {
             navController.popBackStack()

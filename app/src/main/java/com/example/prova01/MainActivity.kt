@@ -40,7 +40,7 @@ fun TelaCadastro() {
 
     var nome by remember { mutableStateOf("") }
     var categoria by remember { mutableStateOf("") }
-    var preco by remember { mutableStateOf("") }
+    var precoText by remember { mutableStateOf("") }
     var qtdEstoque by remember { mutableStateOf("") }
 
     Column(
@@ -49,44 +49,69 @@ fun TelaCadastro() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         TextField(value = nome, onValueChange = { nome = it }, label = { Text("Nome do Produto") })
-        TextField(value = categoria, onValueChange = { categoria = it }, label = { Text("Categoria do Produto") })
-        TextField(value = preco, onValueChange = { preco = it }, label = { Text("Preço do Produto") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
-        TextField(value = qtdEstoque, onValueChange = { qtdEstoque = it }, label = { Text("Quantidade em Estoque") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
+        TextField(
+            value = categoria,
+            onValueChange = { categoria = it },
+            label = { Text("Categoria do Produto") })
+        TextField(
+            value = precoText,
+            onValueChange = { precoText = it },
+            label = { Text("Preço do Produto") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+        )
+        TextField(
+            value = qtdEstoque,
+            onValueChange = { qtdEstoque = it },
+            label = { Text("Quantidade em Estoque") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+        )
 
         Button(onClick = {
             if (nome.isBlank()) {
-                Toast.makeText(context, "Todos os campos são obrigatórios", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Todos os campos são obrigatórios", Toast.LENGTH_SHORT)
+                    .show()
                 return@Button
             }
 
             if (categoria.isBlank()) {
-                Toast.makeText(context, "Todos os campos são obrigatórios", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Todos os campos são obrigatórios", Toast.LENGTH_SHORT)
+                    .show()
                 return@Button
             }
 
-            val precoFloat: Float
-            if (preco.isBlank()) {
-                Toast.makeText(context, "Todos os campos são obrigatórios", Toast.LENGTH_SHORT).show()
+            val preco: Double
+            if (precoText.isBlank()) {
+                Toast.makeText(context, "Todos os campos são obrigatórios", Toast.LENGTH_SHORT)
+                    .show()
                 return@Button
             } else {
-                precoFloat = preco.toFloat()
+                preco = precoText.toDouble()
             }
 
-            val qtdEstoqueInt: Int
+            val quantidade: Int
             if (qtdEstoque.isBlank()) {
-                Toast.makeText(context, "Todos os campos são obrigatórios", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Todos os campos são obrigatórios", Toast.LENGTH_SHORT)
+                    .show()
                 return@Button
             } else {
-                qtdEstoqueInt = qtdEstoque.toInt()
+                quantidade = qtdEstoque.toInt()
             }
 
-            val produto = Produto(nome, categoria, precoFloat, qtdEstoqueInt)
-            Produto.produtos.add(produto)
+            if (quantidade <= 0 || preco <= 0) {
+                Toast.makeText(
+                    context,
+                    "Quantidade e preço devem ser maiores que 0",
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else {
+                // Produto válido, prossiga com o cadastro
+                Estoque.adicionarProduto(Produto(nome, categoria, preco, quantidade))
 
-            nome = ""
-            categoria = ""
-            preco = ""
-            qtdEstoque = ""
+                nome = ""
+                categoria = ""
+                precoText = ""
+                qtdEstoque = ""
+            }
         }) {
             Text("Cadastrar Produto!")
         }
